@@ -29,3 +29,11 @@ describe("sessions table", () => {
     });
   });
 });
+
+describe("messages table", () => {
+  it("there are 4 messages", () => {
+    return db.query("SELECT * FROM messages;").then((messages) => {
+      expect(messages.rows.length).toBe(4);
+    });
+  });
+});
