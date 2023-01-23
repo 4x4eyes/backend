@@ -4,7 +4,7 @@ const format = require("pg-format");
 // user_games, game_categories, sessions, messages
 
 const seed = async (data) => {
-  const { users } = data;
+  const { users, sessions } = data;
 
   await db.query("DROP TABLE IF EXISTS messages;");
   await db.query("DROP TABLE IF EXISTS sessions;");
@@ -101,6 +101,20 @@ const seed = async (data) => {
     .then((result) => result.rows);
 
   await Promise.all([usersPromise]);
+
+  const insertSessionString = format(
+    `
+  INSERT INTO sessions
+  (user_a_id, user_b_id)
+  VALUES %L
+  RETURNING *;
+  `,
+    sessions.map(({ user_a_id, user_b_id }) => [user_a_id, user_b_id])
+  );
+  const sessionsPromise = db
+    .query(insertSessionString)
+    .then((result) => result.rows);
+    await Promise.all([sessionsPromise])
 };
 
 module.exports = seed;
