@@ -1,9 +1,11 @@
 const db = require("../connection");
 const format = require("pg-format");
 
+// user_games, game_categories, sessions, messages
+
 const seed = async (data) => {
-  //   const { users, user_games, game_categories, sessions, messages } =
-  //     data;
+  const { users } = data;
+
   await db.query("DROP TABLE IF EXISTS messages;");
   await db.query("DROP TABLE IF EXISTS sessions;");
   await db.query("DROP TABLE IF EXISTS user_games;");
@@ -16,15 +18,15 @@ const seed = async (data) => {
     avatar_url VARCHAR,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
-    age INT NOT NULL,
+    dob DATE NOT NULL,
     street_address VARCHAR,
     city VARCHAR NOT NULL,
-    post_code VARCHAR,
+    postcode VARCHAR,
     county VARCHAR,
     country VARCHAR NOT NULL,
     distance_radius FLOAT NOT NULL DEFAULT 1,
     email VARCHAR NOT NULL,
-    phone_number INT NOT NULL
+    phone_number VARCHAR(11) NOT NULL
     );`);
 
   const gameCategoriesTablePromise = db.query(`CREATE TABLE game_categories (
@@ -56,6 +58,49 @@ const seed = async (data) => {
     message_body VARCHAR(500) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
     );`);
+
+  const insertUsersString = format(
+    `INSERT INTO users 
+  (username, avatar_url, first_name, last_name, dob, street_address, city, postcode, county, country, distance_radius, email, phone_number)
+  VALUES %L RETURNING *;`,
+    users.map(
+      ({
+        username,
+        avatar_url,
+        first_name,
+        last_name,
+        dob,
+        street_address,
+        city,
+        postcode,
+        county,
+        country,
+        distance_radius,
+        email,
+        phone_number,
+      }) => [
+        username,
+        avatar_url,
+        first_name,
+        last_name,
+        dob,
+        street_address,
+        city,
+        postcode,
+        county,
+        country,
+        distance_radius,
+        email,
+        phone_number,
+      ]
+    )
+  );
+
+  const usersPromise = db
+    .query(insertUsersString)
+    .then((result) => result.rows);
+
+  await Promise.all([usersPromise]);
 };
 
 module.exports = seed;
