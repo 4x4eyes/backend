@@ -1,0 +1,5 @@
+DROP DATABASE IF EXISTS binder_test;
+DROP DATABASE IF EXISTS binder;
+
+CREATE DATABASE binder_test;
+CREATE DATABASE binder;
