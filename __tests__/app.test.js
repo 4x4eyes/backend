@@ -17,7 +17,6 @@ describe("seed data tables", () => {
 
   it("there are 9 game categories", () => {
     return db.query("SELECT * FROM game_categories;").then((categories) => {
-      console.log(categories);
       expect(categories.rows.length).toBe(9);
     });
   });
