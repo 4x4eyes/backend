@@ -1,2 +1,2 @@
 exports.users = require("./users");
-exports.gameCategories = require("./gameCategory");
+exports.gameCategories = require("./gameCategories");

@@ -8,10 +8,17 @@ beforeEach(() => seed(testData));
 
 afterAll(() => db.end());
 
-describe("users table", () => {
+describe("seed data tables", () => {
   it("there are 3 users", () => {
     return db.query("SELECT * FROM users;").then((users) => {
       expect(users.rows.length).toBe(3);
+    });
+  });
+
+  it("there are 9 game categories", () => {
+    return db.query("SELECT * FROM game_categories;").then((categories) => {
+      console.log(categories);
+      expect(categories.rows.length).toBe(9);
     });
   });
 });
