@@ -22,3 +22,11 @@ describe("seed data tables", () => {
     });
   });
 });
+
+describe("sessions table", () => {
+  it("there are 2 sessions", () => {
+    return db.query("SELECT * FROM sessions;").then((sessions) => {
+      expect(sessions.rows.length).toBe(2);
+    });
+  });
+});
