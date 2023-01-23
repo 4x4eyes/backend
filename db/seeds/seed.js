@@ -4,7 +4,7 @@ const format = require("pg-format");
 // messages
 
 const seed = async (data) => {
-  const { users, gameCategories, sessions, userGames } = data;
+  const { users, gameCategories, sessions, userGames, messages } = data;
 
   await db.query("DROP TABLE IF EXISTS messages;");
   await db.query("DROP TABLE IF EXISTS sessions;");
@@ -55,6 +55,7 @@ const seed = async (data) => {
   await db.query(`CREATE TABLE messages (
     message_id SERIAL PRIMARY KEY,
     session_id INT NOT NULL REFERENCES sessions(session_id),
+    author_id INT NOT NULL,
     message_body VARCHAR(500) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
     );`);
@@ -125,6 +126,7 @@ const seed = async (data) => {
     .then((result) => result.rows);
   await Promise.all([sessionsPromise]);
 
+
   const insertUserGameString = format(
     ` INSERT INTO user_games (
       user_id, game_name, category_id
@@ -142,6 +144,24 @@ const seed = async (data) => {
     .then((result) => result.rows);
 
   await Promise.all([userGamesPromise]);
+  
+  const insertMessagesString = format(
+    `
+    INSERT INTO messages
+    (session_id, author_id, message_body, created_at)
+    VALUES %L
+    RETURNING *;
+    `,
+    messages.map(({ session_id, author_id, message_body, created_at }) => [
+      session_id,
+      author_id,
+      message_body,
+      created_at,
+    ])
+  );
+
+  await db.query(insertMessagesString).then((result) => result.rows);
+
 };
 
 module.exports = seed;
