@@ -29,3 +29,11 @@ describe("sessions table", () => {
     });
   });
 });
+
+describe("user_games table", () => {
+    it("has 9 rows", () => {
+        return db.query("SELECT * FROM user_games;").then(user_games => {
+            expect(user_games.rows.length).toBe(9);
+        })
+    })
+})
