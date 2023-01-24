@@ -77,4 +77,137 @@ describe("POST /api/users", () => {
         );
       });
   });
+
+  it("returns 400 status when passed an object with missing data", () => {
+    const missingDataPostUser = {
+      avatar_url: "",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: "1000",
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(missingDataPostUser)
+      .expect(400)
+      .then(({ body: { msg } }) => expect(msg).toBe("bad request"));
+  });
+
+  it("returns 400 status when passed nothing", () => {
+    return request(app)
+      .post("/api/users")
+      .send()
+      .expect(400)
+      .then(({ body: { msg } }) => expect(msg).toBe("bad request"));
+  });
+
+  it("returns 400 status when passed an object with a bad data type", () => {
+    const badDataTypeUser = {
+      username: "Nathan",
+      avatar_url: "",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: "loads",
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(badDataTypeUser)
+      .expect(400)
+      .then(({ body: { msg } }) => expect(msg).toBe("bad request"));
+  });
+
+  it("returns 400 status when passed a user name that already exists in the database", () => {
+    const postUser = {
+      username: "Geoff",
+      avatar_url: "",
+      first_name: "Geoff",
+      last_name: "Geoff",
+      dob: "1980-01-01",
+      street_address: "250 Heath Road",
+      city: "Bebington",
+      postcode: "CH632HQ",
+      county: "Merseyside",
+      country: "UK",
+      distance_radius: "10",
+      email: "Geoff@geoff.geoff",
+      phone_number: "01234567890",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postUser)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("username already taken");
+      });
+  });
+
+  it("returns 400 when passed an object with a bad key", () => {
+    const badKeyUser = {
+      username: "Nathan",
+      avatar_url: "",
+      first_name: "Nathan",
+      last_rame: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: "1000",
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(badKeyUser)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+
+  it("returns 400 when passed a distance radius with a negative number", () => {
+    const postUser = {
+      username: "Geoff",
+      avatar_url: "",
+      first_name: "Geoff",
+      last_name: "Geoff",
+      dob: "1980-01-01",
+      street_address: "250 Heath Road",
+      city: "Bebington",
+      postcode: "CH632HQ",
+      county: "Merseyside",
+      country: "UK",
+      distance_radius: "-10",
+      email: "Geoff@geoff.geoff",
+      phone_number: "01234567890",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(postUser)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("username already taken");
+      });
+  });
 });
