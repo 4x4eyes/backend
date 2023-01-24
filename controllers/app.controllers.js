@@ -1,4 +1,9 @@
-const { insertUser, checkUsernameExists } = require("../models/app.models");
+const e = require("express");
+const {
+  insertUser,
+  checkUsernameExists,
+  selectSingleUser,
+} = require("../models/app.models");
 const { checkPositive } = require("../utils/utils");
 
 exports.getRoot = (request, response, next) => {
@@ -21,4 +26,12 @@ exports.postUser = (request, response, next) => {
         next(error);
       });
   }
+};
+
+exports.getSingleUser = (request, response, next) => {
+  selectSingleUser(request.params.username)
+    .then((user) => response.status(200).send({ user }))
+    .catch((error) => {
+      next(error);
+    });
 };

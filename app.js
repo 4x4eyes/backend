@@ -1,5 +1,9 @@
 const express = require("express");
-const { getRoot, postUser } = require("./controllers/app.controllers");
+const {
+  getRoot,
+  postUser,
+  getSingleUser,
+} = require("./controllers/app.controllers");
 const {
   handle404Paths,
   handle500Error,
@@ -11,6 +15,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/", getRoot);
+app.get("/api/users/:username", getSingleUser);
 
 app.post("/api/users", postUser);
 
