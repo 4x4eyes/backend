@@ -44,14 +44,24 @@ exports.insertUser = (newUser) => {
   });
 };
 
+const selectSingleUserString = `SELECT * FROM users WHERE username = $1;`;
+
 exports.checkUsernameExists = (username) => {
-  return db
-    .query(`SELECT * FROM users WHERE username = $1;`, [username])
-    .then((result) => {
-      if (!!result.rows.length) {
-        return Promise.reject({ code: 400, msg: "username already taken" });
-      } else {
-        return Promise.resolve();
-      }
-    });
+  return db.query(selectSingleUserString, [username]).then((result) => {
+    if (!!result.rows.length) {
+      return Promise.reject({ code: 400, msg: "username already taken" });
+    } else {
+      return Promise.resolve();
+    }
+  });
+};
+
+exports.selectSingleUser = (username) => {
+  return db.query(selectSingleUserString, [username]).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({ code: 404, msg: "user not found" });
+    } else {
+      return result.rows[0];
+    }
+  });
 };

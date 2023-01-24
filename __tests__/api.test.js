@@ -233,3 +233,40 @@ describe("POST /api/users", () => {
       });
   });
 });
+
+describe("get single user", () => {
+  it("responds status 200 and a single user object", () => {
+    return request(app)
+      .get("/api/users/Dave")
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toEqual(
+          expect.objectContaining({
+            user_id: 2,
+            username: "Dave",
+            avatar_url: "",
+            first_name: "Dave",
+            last_name: "Dave",
+            dob: "1980-01-01",
+            street_address: "3 New Street",
+            city: "Neston",
+            postcode: "CH640TF",
+            county: "Cheshire",
+            country: "UK",
+            distance_radius: 10,
+            email: "Dave@dave.dave",
+            phone_number: "01234567890",
+          })
+        );
+      });
+  });
+
+  it("returns 404 when given a username not in the database", () => {
+    return request(app)
+      .get("/api/users/Geraldine")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
+});
