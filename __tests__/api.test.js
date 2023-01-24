@@ -42,7 +42,7 @@ describe("POST /api/users", () => {
     postcode: "SE184EP",
     county: "Greater London",
     country: "UK",
-    distance_radius: "1000",
+    distance_radius: 1000,
     email: "Nathan@nathan.nathaniel",
     phone_number: "75328075809",
   };
@@ -126,15 +126,11 @@ describe("POST /api/users", () => {
       phone_number: "75328075809",
     };
 
-    return request(app)
-      .post("/api/users")
-      .send(badDataTypeUser)
-      .expect(400)
-      .then(({ body: { msg } }) => expect(msg).toBe("bad request"));
+    return request(app).post("/api/users").send(badDataTypeUser).expect(400);
   });
 
   it("returns 400 status when passed a user name that already exists in the database", () => {
-    const postUser = {
+    const duplicateUser = {
       username: "Geoff",
       avatar_url: "",
       first_name: "Geoff",
@@ -145,14 +141,14 @@ describe("POST /api/users", () => {
       postcode: "CH632HQ",
       county: "Merseyside",
       country: "UK",
-      distance_radius: "10",
+      distance_radius: 10,
       email: "Geoff@geoff.geoff",
       phone_number: "01234567890",
     };
 
     return request(app)
       .post("/api/users")
-      .send(postUser)
+      .send(duplicateUser)
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("username already taken");
@@ -171,7 +167,7 @@ describe("POST /api/users", () => {
       postcode: "SE184EP",
       county: "Greater London",
       country: "UK",
-      distance_radius: "1000",
+      distance_radius: 1000,
       email: "Nathan@nathan.nathaniel",
       phone_number: "75328075809",
     };
@@ -186,28 +182,54 @@ describe("POST /api/users", () => {
   });
 
   it("returns 400 when passed a distance radius with a negative number", () => {
-    const postUser = {
-      username: "Geoff",
+    const negativeUser = {
+      username: "Nathan",
       avatar_url: "",
-      first_name: "Geoff",
-      last_name: "Geoff",
-      dob: "1980-01-01",
-      street_address: "250 Heath Road",
-      city: "Bebington",
-      postcode: "CH632HQ",
-      county: "Merseyside",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
       country: "UK",
-      distance_radius: "-10",
-      email: "Geoff@geoff.geoff",
-      phone_number: "01234567890",
+      distance_radius: -1000,
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
     };
 
     return request(app)
       .post("/api/users")
-      .send(postUser)
+      .send(negativeUser)
       .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("username already taken");
+        expect(msg).toBe("bad request");
+      });
+  });
+
+  it("returns 400 when passed a distance radius of infinity", () => {
+    const infiniteUser = {
+      username: "Nathan",
+      avatar_url: "",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: Infinity,
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(infiniteUser)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
       });
   });
 });
