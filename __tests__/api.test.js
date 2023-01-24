@@ -269,4 +269,13 @@ describe("get single user", () => {
         expect(msg).toBe("user not found");
       });
   });
+
+  it("returns 404 when given a username that is a number", () => {
+    return request(app)
+      .get("/api/users/20")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
 });
