@@ -18,7 +18,7 @@ const seed = async (data) => {
     avatar_url VARCHAR,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
-    dob DATE NOT NULL,
+    dob VARCHAR(10) NOT NULL,
     street_address VARCHAR,
     city VARCHAR NOT NULL,
     postcode VARCHAR,
@@ -126,7 +126,6 @@ const seed = async (data) => {
     .then((result) => result.rows);
   await Promise.all([sessionsPromise]);
 
-
   const insertUserGameString = format(
     ` INSERT INTO user_games (
       user_id, game_name, category_id
@@ -144,7 +143,7 @@ const seed = async (data) => {
     .then((result) => result.rows);
 
   await Promise.all([userGamesPromise]);
-  
+
   const insertMessagesString = format(
     `
     INSERT INTO messages
@@ -161,7 +160,6 @@ const seed = async (data) => {
   );
 
   await db.query(insertMessagesString).then((result) => result.rows);
-
 };
 
 module.exports = seed;
