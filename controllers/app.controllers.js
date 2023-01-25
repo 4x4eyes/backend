@@ -13,6 +13,11 @@ exports.getRoot = (request, response, next) => {
 };
 
 exports.postUser = (request, response, next) => {
+  if (!request.body.username) {
+    let error = { code: 400, msg: "bad request" };
+    next(error);
+  }
+
   if (!checkPositive(parseInt(request.body.distance_radius))) {
     let error = { code: 400, msg: "bad request" };
     next(error);

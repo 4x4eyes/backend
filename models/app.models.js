@@ -47,8 +47,19 @@ exports.insertUser = (newUser) => {
 const selectSingleUserString = `SELECT * FROM users WHERE username = $1;`;
 
 exports.checkUsernameExists = (username) => {
-  return db.query(selectSingleUserString, [username]).then((result) => {
-    return !!result.rows.length;
+  const getUsernamesString = `SELECT username FROM users;`;
+
+  return db.query(getUsernamesString).then(({ rows: usernames }) => {
+    let usernameExists = false;
+
+    for (i = 0; i < usernames.length; i++) {
+      if (usernames[i].username.toUpperCase() === username.toUpperCase()) {
+        usernameExists = true;
+        i = usernames.length;
+      }
+    }
+
+    return usernameExists;
   });
 };
 
