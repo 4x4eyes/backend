@@ -2,7 +2,7 @@
   "GET /api": {
     "description": "returns an object containing descriptions and sample responses & request bodies for the api"
   },
-  "/users": {
+  "api/users": {
     "GET /:username": {
       "description": "returns all columns for the specified user",
       "example response": {
@@ -80,6 +80,17 @@
         "email": "Geoff@geoff.geoff",
         "phone_number": "01234567890"
       }
+    }
+  },
+  "GET api/matches/:username": {
+    "description": "Returns a list of users where you share an area within each other's distance_radius",
+    "example response": {
+      "matches": [
+        {
+          "username": "Dave",
+          "distance": "10.2 km"
+        }
+      ]
     }
   }
 }
