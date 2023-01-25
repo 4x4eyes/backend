@@ -65,3 +65,15 @@ exports.selectSingleUser = (username) => {
     }
   });
 };
+
+exports.updateSingleUser = (username, updateBody) => {
+  const inputValues = [username];
+  let updateString = "UPDATE users SET ";
+  for (const [key, value] of Object.entries(updateBody)) {
+    updateString += `${key} = $${inputValues.length + 1}`;
+    inputValues.push(value);
+  }
+  updateString += "WHERE username = $1 RETURNING *;";
+  console.log(updateString, inputValues);
+  return db.query(updateString, inputValues).then(({ rows }) => rows[0]);
+};

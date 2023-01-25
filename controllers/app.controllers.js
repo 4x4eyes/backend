@@ -3,6 +3,7 @@ const {
   insertUser,
   checkUsernameExists,
   selectSingleUser,
+  updateSingleUser,
 } = require("../models/app.models");
 const { checkPositive } = require("../utils/utils");
 
@@ -32,6 +33,15 @@ exports.getSingleUser = (request, response, next) => {
   selectSingleUser(request.params.username)
     .then((user) => response.status(200).send({ user }))
     .catch((error) => {
+      next(error);
+    });
+};
+
+exports.patchSingleUser = (request, response, next) => {
+  updateSingleUser(request.params.username, request.body)
+    .then((newUser) => response.status(202).send({ newUser }))
+    .catch((error) => {
+      console.log(error);
       next(error);
     });
 };

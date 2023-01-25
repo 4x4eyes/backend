@@ -3,6 +3,7 @@ const {
   getRoot,
   postUser,
   getSingleUser,
+  patchSingleUser,
 } = require("./controllers/app.controllers");
 const {
   handle404Paths,
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.get("/", getRoot);
 app.get("/api/users/:username", getSingleUser);
+app.patch("/api/users/:username", patchSingleUser);
 
 app.post("/api/users", postUser);
 

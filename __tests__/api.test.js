@@ -280,30 +280,37 @@ describe("get single user", () => {
   });
 });
 
-describe("PATCH users/:username", () => {
-  it("allows a user to change their avatar URL", () => {});
+describe.only("PATCH users/:username", () => {
+  it("allows a user to change their avatar URL", () => {
+    const avatarUpdate = {
+      avatar_url:
+        "https://static.wikia.nocookie.net/yogscast/images/b/b8/Filfy_Geoff.jpg/revision/latest/scale-to-width-down/250?cb=20160512134600",
+    };
+    return request(app)
+      .patch("/api/users/Geoff")
+      .send(avatarUpdate)
+      .expect(202)
+      .then(({ body: { newUser } }) => {
+        expect(newUser.avatar_url).toBe(avatarUpdate.avatar_url);
+      });
+  });
 
-  it("allows a user to change their street address", () => {});
+  it("allows a user to change their street address", () => {
+    const streetUpdate = {
+      street_address: "7 Hill Rise",
+    };
+    return request(app)
+      .patch("/api/users/Geoff")
+      .send(streetUpdate)
+      .expect(202)
+      .then(({ body: { newUser } }) => {
+        console.log(newUser);
+        expect(newUser.street_address).toBe(streetUpdate.street_address);
+      });
+  });
 
-  it("allows a user to change their city", () => {});
-
-  it("allows a user to change their postcode", () => {});
-
-  it("allows a user to change their county", () => {});
-
-  it("allows a user to change their country", () => {});
-
-  it("allows a user to change their distance_radius", () => {});
-
-  it("allows a user to change their email address", () => {});
-
-  it("allows a user to change their phone number", () => {});
 
   it("does not allow a user to change their username", () => {});
-
-  it("allows a user to change their first name", () => {});
-
-  it("allows a user to change their last name", () => {});
 
   it("doest not allow a user to change their dob", () => {});
 });
