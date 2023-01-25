@@ -279,3 +279,29 @@ describe("get single user", () => {
       });
   });
 });
+
+describe("PATCH users/:username", () => {
+  it("allows a user to change their avatar URL", () => {});
+
+  it("allows a user to change their street address", () => {});
+
+  it("allows a user to change their city", () => {});
+
+  it("allows a user to change their postcode", () => {});
+
+  it("allows a user to change their county", () => {});
+
+  it("allows a user to change their country", () => {});
+
+  it("allows a user to change their distance_radius", () => {});
+
+  it("allows a user to change their email address", () => {});
+
+  it("allows a user to change their phone number", () => {});
+
+  it("does not allow a user to change their username", () => {});
+
+  it("does not allow a user to change their first name", () => {});
+
+  it("does not allow a user to change their last name", () => {});
+});
