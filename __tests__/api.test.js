@@ -280,7 +280,7 @@ describe("get single user", () => {
   });
 });
 
-describe.only("PATCH users/:username", () => {
+describe("PATCH users/:username", () => {
   it("allows a user to change their avatar URL", () => {
     const avatarUpdate = {
       avatar_url:
@@ -304,13 +304,118 @@ describe.only("PATCH users/:username", () => {
       .send(streetUpdate)
       .expect(202)
       .then(({ body: { newUser } }) => {
-        console.log(newUser);
         expect(newUser.street_address).toBe(streetUpdate.street_address);
       });
   });
 
+  it("does not allow a user to change their username", () => {
+    const usernameUpdate = {
+      username: "superGeofff123",
+    };
 
-  it("does not allow a user to change their username", () => {});
+    return request(app)
+      .patch("/api/users/Geoff")
+      .send(usernameUpdate)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
 
-  it("doest not allow a user to change their dob", () => {});
+  it("doest not allow a user to change their dob", () => {
+    const dobUpdate = {
+      dob: "1900-01-01",
+    };
+
+    return request(app)
+      .patch("/api/users/Geoff")
+      .send(dobUpdate)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+
+  it("can update multiple rows in the user table", () => {
+    const mutliUpdate = {
+      street_address: "7 Hill Rise",
+      city: "Heathfield",
+      postcode: "TN218LU",
+      county: "",
+    };
+    return request(app)
+      .patch("/api/users/Geoff")
+      .send(mutliUpdate)
+      .expect(202)
+      .then(({ body: { newUser } }) => {
+        expect(newUser).toEqual(
+          expect.objectContaining({
+            username: "Geoff",
+            avatar_url: "",
+            first_name: "Geoff",
+            last_name: "Geoff",
+            dob: "1980-01-01",
+            street_address: "7 Hill Rise",
+            city: "Heathfield",
+            postcode: "TN218LU",
+            county: "",
+            country: "UK",
+            distance_radius: 10,
+            email: "Geoff@geoff.geoff",
+            phone_number: "01234567890",
+          })
+        );
+      });
+  });
+
+  it("rejects non changeable fields when passed mutliple updates", () => {
+    const mutliUpdate = {
+      username: "superGeoff",
+      potato: "yes",
+      street_address: "7 Hill Rise",
+      city: "Heathfield",
+      postcode: "TN218LU",
+      county: "",
+    };
+
+    return request(app)
+      .patch("/api/users/Geoff")
+      .send(mutliUpdate)
+      .expect(202)
+      .then(({ body: { newUser } }) => {
+        expect(newUser).toEqual(
+          expect.objectContaining({
+            username: "Geoff",
+            avatar_url: "",
+            first_name: "Geoff",
+            last_name: "Geoff",
+            dob: "1980-01-01",
+            street_address: "7 Hill Rise",
+            city: "Heathfield",
+            postcode: "TN218LU",
+            county: "",
+            country: "UK",
+            distance_radius: 10,
+            email: "Geoff@geoff.geoff",
+            phone_number: "01234567890",
+          })
+        );
+      });
+  });
+
+  it("returns 404 when passed a user not in the database", () => {
+    const mutliUpdate = {
+      street_address: "7 Hill Rise",
+      city: "Heathfield",
+      postcode: "TN218LU",
+      county: "",
+    };
+    return request(app)
+      .patch("/api/users/geoffrey")
+      .send(mutliUpdate)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
 });

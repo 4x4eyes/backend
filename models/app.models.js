@@ -48,32 +48,45 @@ const selectSingleUserString = `SELECT * FROM users WHERE username = $1;`;
 
 exports.checkUsernameExists = (username) => {
   return db.query(selectSingleUserString, [username]).then((result) => {
-    if (!!result.rows.length) {
-      return Promise.reject({ code: 400, msg: "username already taken" });
-    } else {
-      return Promise.resolve();
-    }
+    return !!result.rows.length;
   });
 };
 
 exports.selectSingleUser = (username) => {
   return db.query(selectSingleUserString, [username]).then((result) => {
-    if (result.rows.length === 0) {
-      return Promise.reject({ code: 404, msg: "user not found" });
-    } else {
-      return result.rows[0];
-    }
+    return result.rows[0];
   });
 };
 
 exports.updateSingleUser = (username, updateBody) => {
+  const validKeys = [
+    "avatar_url",
+    "first_name",
+    "last_name",
+    "street_address",
+    "city",
+    "postcode",
+    "county",
+    "country",
+    "distance_radius",
+    "email",
+    "phone number",
+  ];
+
   const inputValues = [username];
+
   let updateString = "UPDATE users SET ";
+
   for (const [key, value] of Object.entries(updateBody)) {
-    updateString += `${key} = $${inputValues.length + 1}`;
-    inputValues.push(value);
+    if (validKeys.includes(key)) {
+      updateString += `${key} = $${inputValues.length + 1}, `;
+      inputValues.push(value);
+    }
   }
-  updateString += "WHERE username = $1 RETURNING *;";
-  console.log(updateString, inputValues);
+
+  updateString = updateString.slice(0, -2);
+
+  updateString += " WHERE username = $1 RETURNING *;";
+
   return db.query(updateString, inputValues).then(({ rows }) => rows[0]);
 };

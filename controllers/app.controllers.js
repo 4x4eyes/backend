@@ -1,4 +1,3 @@
-const e = require("express");
 const {
   insertUser,
   checkUsernameExists,
@@ -6,6 +5,8 @@ const {
   updateSingleUser,
 } = require("../models/app.models");
 const { checkPositive } = require("../utils/utils");
+
+const userNotFound = { code: 404, msg: "user not found" };
 
 exports.getRoot = (request, response, next) => {
   response.status(200).send({ msg: "connected" });
@@ -17,9 +18,11 @@ exports.postUser = (request, response, next) => {
     next(error);
   } else {
     checkUsernameExists(request.body.username)
-      .then(() => {
-        return insertUser(request.body);
-      })
+      .then((userExists) =>
+        userExists
+          ? next({ code: 400, msg: "username already taken" })
+          : insertUser(request.body)
+      )
       .then((res) => {
         response.status(201).send({ newUser: res });
       })
@@ -30,7 +33,12 @@ exports.postUser = (request, response, next) => {
 };
 
 exports.getSingleUser = (request, response, next) => {
-  selectSingleUser(request.params.username)
+  checkUsernameExists(request.params.username)
+    .then((userExists) =>
+      userExists
+        ? selectSingleUser(request.params.username)
+        : next(userNotFound)
+    )
     .then((user) => response.status(200).send({ user }))
     .catch((error) => {
       next(error);
@@ -38,10 +46,14 @@ exports.getSingleUser = (request, response, next) => {
 };
 
 exports.patchSingleUser = (request, response, next) => {
-  updateSingleUser(request.params.username, request.body)
+  checkUsernameExists(request.params.username)
+    .then((userExists) =>
+      userExists
+        ? updateSingleUser(request.params.username, request.body)
+        : next(userNotFound)
+    )
     .then((newUser) => response.status(202).send({ newUser }))
     .catch((error) => {
-      console.log(error);
       next(error);
     });
 };
