@@ -50,26 +50,54 @@ exports.checkUsernameExists = (username) => {
   const getUsernamesString = `SELECT username FROM users;`;
 
   return db.query(getUsernamesString).then(({ rows: usernames }) => {
-    let usernameIsFree = true;
+    let usernameExists = false;
 
     for (i = 0; i < usernames.length; i++) {
       if (usernames[i].username.toUpperCase() === username.toUpperCase()) {
-        usernameIsFree = false;
+        usernameExists = true;
         i = usernames.length;
       }
     }
 
-    if (usernameIsFree) return Promise.resolve();
-    else return Promise.reject({ code: 400, msg: "username already taken" });
+    return usernameExists;
   });
 };
 
 exports.selectSingleUser = (username) => {
   return db.query(selectSingleUserString, [username]).then((result) => {
-    if (result.rows.length === 0) {
-      return Promise.reject({ code: 404, msg: "user not found" });
-    } else {
-      return result.rows[0];
-    }
+    return result.rows[0];
   });
+};
+
+exports.updateSingleUser = (username, updateBody) => {
+  const validKeys = [
+    "avatar_url",
+    "first_name",
+    "last_name",
+    "street_address",
+    "city",
+    "postcode",
+    "county",
+    "country",
+    "distance_radius",
+    "email",
+    "phone number",
+  ];
+
+  const inputValues = [username];
+
+  let updateString = "UPDATE users SET ";
+
+  for (const [key, value] of Object.entries(updateBody)) {
+    if (validKeys.includes(key)) {
+      updateString += `${key} = $${inputValues.length + 1}, `;
+      inputValues.push(value);
+    }
+  }
+
+  updateString = updateString.slice(0, -2);
+
+  updateString += " WHERE username = $1 RETURNING *;";
+
+  return db.query(updateString, inputValues).then(({ rows }) => rows[0]);
 };
