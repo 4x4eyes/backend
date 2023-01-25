@@ -34,6 +34,51 @@ describe("handles 404", () => {
   });
 });
 
+describe("GET single user", () => {
+  it("responds status 200 and a single user object", () => {
+    return request(app)
+      .get("/api/users/Dave")
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toEqual(
+          expect.objectContaining({
+            user_id: 2,
+            username: "Dave",
+            avatar_url: "",
+            first_name: "Dave",
+            last_name: "Dave",
+            dob: "1980-01-01",
+            street_address: "3 New Street",
+            city: "Neston",
+            postcode: "CH640TF",
+            county: "Cheshire",
+            country: "UK",
+            distance_radius: 10,
+            email: "Dave@dave.dave",
+            phone_number: "01234567890",
+          })
+        );
+      });
+  });
+
+  it("returns 404 when given a username not in the database", () => {
+    return request(app)
+      .get("/api/users/Geraldine")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
+
+  it("returns 404 when given a username that is a number", () => {
+    return request(app)
+      .get("/api/users/20")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
+});
 describe("POST /api/users", () => {
   const postUser = {
     username: "Nathan",
@@ -237,53 +282,6 @@ describe("POST /api/users", () => {
       });
   });
 });
-
-describe("GET single user", () => {
-  it("responds status 200 and a single user object", () => {
-    return request(app)
-      .get("/api/users/Dave")
-      .expect(200)
-      .then(({ body: { user } }) => {
-        expect(user).toEqual(
-          expect.objectContaining({
-            user_id: 2,
-            username: "Dave",
-            avatar_url: "",
-            first_name: "Dave",
-            last_name: "Dave",
-            dob: "1980-01-01",
-            street_address: "3 New Street",
-            city: "Neston",
-            postcode: "CH640TF",
-            county: "Cheshire",
-            country: "UK",
-            distance_radius: 10,
-            email: "Dave@dave.dave",
-            phone_number: "01234567890",
-          })
-        );
-      });
-  });
-
-  it("returns 404 when given a username not in the database", () => {
-    return request(app)
-      .get("/api/users/Geraldine")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("user not found");
-      });
-  });
-
-  it("returns 404 when given a username that is a number", () => {
-    return request(app)
-      .get("/api/users/20")
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("user not found");
-      });
-  });
-});
-
 describe("PATCH users/:username", () => {
   it("allows a user to change their avatar URL", () => {
     const avatarUpdate = {
@@ -420,6 +418,68 @@ describe("PATCH users/:username", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("user not found");
+      });
+  });
+});
+
+describe("GET match/:username", () => {
+  it("responds with a list of users", () => {
+    return request(app)
+      .get("/api/matches/Dave")
+      .expect(200)
+      .then(({ body: { matches } }) => {
+        expect(matches).toBeInstanceOf(Array);
+      });
+  });
+
+  it("only responds with users that are reachable within the distance radius", () => {
+    return request(app)
+      .get("/api/matches/Dave")
+      .expect(200)
+      .then(({ body: { matches } }) => {
+        expect(matches.length).toBe(1);
+      });
+  });
+
+  it("responds with a 404 if the user does not exist", () => {
+    return request(app)
+      .get("/api/matches/wiggleWilmur")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
+
+  it("responds with 0 results if there is noone within the max distance", () => {
+    const newUser = {
+      username: "Nathan",
+      avatar_url: "",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: 1,
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .then(({ body: { newUser } }) => {
+        expect(newUser).toBeInstanceOf(Object);
+      })
+      .then(() => {
+        return request(app).get("/api/matches/Nathan").expect(200);
+      })
+      .then(({ body: { matches } }) => {
+        expect(matches).toBeInstanceOf(Array);
+        expect(matches.length).toBe(0);
       });
   });
 });

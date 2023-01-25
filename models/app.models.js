@@ -101,3 +101,21 @@ exports.updateSingleUser = (username, updateBody) => {
 
   return db.query(updateString, inputValues).then(({ rows }) => rows[0]);
 };
+
+exports.selectUsers = () => {
+  return db
+    .query(
+      `
+    SELECT
+      username,
+      street_address,
+      city,
+      postcode,
+      county,
+      country,
+      distance_radius
+    FROM users
+    `
+    )
+    .then(({ rows }) => rows);
+};
