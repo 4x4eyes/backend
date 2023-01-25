@@ -301,7 +301,9 @@ describe("PATCH users/:username", () => {
 
   it("does not allow a user to change their username", () => {});
 
-  it("does not allow a user to change their first name", () => {});
+  it("allows a user to change their first name", () => {});
 
-  it("does not allow a user to change their last name", () => {});
+  it("allows a user to change their last name", () => {});
+
+  it("doest not allow a user to change their dob", () => {});
 });
