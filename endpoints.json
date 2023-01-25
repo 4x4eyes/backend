@@ -1,0 +1,85 @@
+{
+  "GET /api": {
+    "description": "returns an object containing descriptions and sample responses & request bodies for the api"
+  },
+  "/users": {
+    "GET /:username": {
+      "description": "returns all columns for the specified user",
+      "example response": {
+        "user_id": 2,
+        "username": "Dave",
+        "avatar_url": "",
+        "first_name": "Dave",
+        "last_name": "Dave",
+        "dob": "1980-01-01",
+        "street_address": "3 New Street",
+        "city": "Neston",
+        "postcode": "CH640TF",
+        "county": "Cheshire",
+        "country": "UK",
+        "distance_radius": 10,
+        "email": "Dave@dave.dave",
+        "phone_number": "01234567890"
+      }
+    },
+    "POST /": {
+      "description": "inserts a new user row into the users table and returns the newly created object in a similar format to GET /users/:username. optional keys include the avatar_url, street_addres, postcode and county.",
+      "example request": {
+        "username": "Nathan",
+        "avatar_url": "",
+        "first_name": "Nathan",
+        "last_name": "Nathanielson",
+        "dob": "1998-05-23",
+        "street_address": "38 Artillery Place",
+        "city": "London",
+        "postcode": "SE184EP",
+        "county": "Greater London",
+        "country": "UK",
+        "distance_radius": 1000,
+        "email": "Nathan@nathan.nathaniel",
+        "phone_number": "75328075809"
+      },
+      "example response": {
+        "user_id": 4,
+        "username": "Nathan",
+        "avatar_url": "",
+        "first_name": "Nathan",
+        "last_name": "Nathanielson",
+        "dob": "1998-05-23",
+        "street_address": "38 Artillery Place",
+        "city": "London",
+        "postcode": "SE184EP",
+        "county": "Greater London",
+        "country": "UK",
+        "distance_radius": 1000,
+        "email": "Nathan@nathan.nathaniel",
+        "phone_number": "75328075809"
+      }
+    },
+    "PATCH /:username": {
+      "description": "updates a user object with any included keys. Any key can be updated besides the username, user_id and dob.",
+      "example request": {
+        "street_address": "7 Hill Rise",
+        "city": "Heathfield",
+        "postcode": "TN218LU",
+        "county": ""
+      },
+      "example response": {
+        "user_id": 1,
+        "username": "Geoff",
+        "avatar_url": "",
+        "first_name": "Geoff",
+        "last_name": "Geoff",
+        "dob": "1980-01-01",
+        "street_address": "7 Hill Rise",
+        "city": "Heathfield",
+        "postcode": "TN218LU",
+        "county": "",
+        "country": "UK",
+        "distance_radius": 10,
+        "email": "Geoff@geoff.geoff",
+        "phone_number": "01234567890"
+      }
+    }
+  }
+}

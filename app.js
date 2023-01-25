@@ -1,9 +1,9 @@
 const express = require("express");
 const {
-  getRoot,
   postUser,
   getSingleUser,
   patchSingleUser,
+  getEndpoints,
 } = require("./controllers/app.controllers");
 const {
   handle404Paths,
@@ -15,11 +15,11 @@ const {
 const app = express();
 app.use(express.json());
 
-app.get("/", getRoot);
-app.get("/api/users/:username", getSingleUser);
-app.patch("/api/users/:username", patchSingleUser);
+app.get("/api", getEndpoints);
 
+app.get("/api/users/:username", getSingleUser);
 app.post("/api/users", postUser);
+app.patch("/api/users/:username", patchSingleUser);
 
 app.get("*", handle404Paths);
 

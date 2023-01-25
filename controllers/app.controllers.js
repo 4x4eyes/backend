@@ -1,3 +1,4 @@
+const fs = require("fs/promises");
 const {
   insertUser,
   checkUsernameExists,
@@ -8,10 +9,24 @@ const { checkPositive } = require("../utils/utils");
 
 const userNotFound = { code: 404, msg: "user not found" };
 
-exports.getRoot = (request, response, next) => {
-  response.status(200).send({ msg: "connected" });
+exports.getEndpoints = (request, response, next) => {
+  fs.readFile(__dirname + "/../endpoints.json", "utf8").then((endpoints) =>
+    response.status(200).send({ endpoints: JSON.parse(endpoints) })
+  );
 };
 
+exports.getSingleUser = (request, response, next) => {
+  checkUsernameExists(request.params.username)
+    .then((userExists) =>
+      userExists
+        ? selectSingleUser(request.params.username)
+        : next(userNotFound)
+    )
+    .then((user) => response.status(200).send({ user }))
+    .catch((error) => {
+      next(error);
+    });
+};
 exports.postUser = (request, response, next) => {
   if (!request.body.username) {
     let error = { code: 400, msg: "bad request" };
@@ -36,20 +51,6 @@ exports.postUser = (request, response, next) => {
       });
   }
 };
-
-exports.getSingleUser = (request, response, next) => {
-  checkUsernameExists(request.params.username)
-    .then((userExists) =>
-      userExists
-        ? selectSingleUser(request.params.username)
-        : next(userNotFound)
-    )
-    .then((user) => response.status(200).send({ user }))
-    .catch((error) => {
-      next(error);
-    });
-};
-
 exports.patchSingleUser = (request, response, next) => {
   checkUsernameExists(request.params.username)
     .then((userExists) =>

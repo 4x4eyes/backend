@@ -1,4 +1,6 @@
 const db = require("../db/connection");
+const fs = require("fs/promises");
+
 const app = require("../app");
 const request = require("supertest");
 const seed = require("../db/seeds/seed");
@@ -8,14 +10,16 @@ beforeEach(() => seed(testData));
 
 afterAll(() => db.end());
 
-describe("GET /", () => {
-  it("responds", () => {
-    return request(app)
-      .get("/")
-      .expect(200)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("connected");
-      });
+describe("GET /api", () => {
+  it("responds with the contents of endpoints.json", () => {
+    const appPromise = request(app).get("/api").expect(200);
+    const filePromise = fs.readFile(__dirname + "/../endpoints.json", "utf8");
+
+    return Promise.all([appPromise, filePromise]).then(
+      ({ endpoints }, file) => {
+        expect(endpoints).toEqual(file);
+      }
+    );
   });
 });
 
@@ -234,7 +238,7 @@ describe("POST /api/users", () => {
   });
 });
 
-describe("get single user", () => {
+describe("GET single user", () => {
   it("responds status 200 and a single user object", () => {
     return request(app)
       .get("/api/users/Dave")
