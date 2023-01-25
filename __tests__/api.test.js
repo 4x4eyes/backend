@@ -449,4 +449,37 @@ describe("GET match/:username", () => {
         expect(msg).toBe("user not found");
       });
   });
+
+  it("responds with 0 results if there is noone within the max distance", () => {
+    const newUser = {
+      username: "Nathan",
+      avatar_url: "",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: 1,
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .then(({ body: { newUser } }) => {
+        expect(newUser).toBeInstanceOf(Object);
+      })
+      .then(() => {
+        return request(app).get("/api/matches/Nathan").expect(200);
+      })
+      .then(({ body: { matches } }) => {
+        expect(matches).toBeInstanceOf(Array);
+        expect(matches.length).toBe(0);
+      });
+  });
 });
