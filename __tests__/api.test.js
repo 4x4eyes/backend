@@ -131,7 +131,7 @@ describe("POST /api/users", () => {
 
   it("returns 400 status when passed a user name that already exists in the database", () => {
     const duplicateUser = {
-      username: "Geoff",
+      username: "geoff",
       avatar_url: "",
       first_name: "Geoff",
       last_name: "Geoff",

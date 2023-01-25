@@ -47,12 +47,20 @@ exports.insertUser = (newUser) => {
 const selectSingleUserString = `SELECT * FROM users WHERE username = $1;`;
 
 exports.checkUsernameExists = (username) => {
-  return db.query(selectSingleUserString, [username]).then((result) => {
-    if (!!result.rows.length) {
-      return Promise.reject({ code: 400, msg: "username already taken" });
-    } else {
-      return Promise.resolve();
+  const getUsernamesString = `SELECT username FROM users;`;
+
+  return db.query(getUsernamesString).then(({ rows: usernames }) => {
+    let usernameIsFree = true;
+
+    for (i = 0; i < usernames.length; i++) {
+      if (usernames[i].username.toUpperCase() === username.toUpperCase()) {
+        usernameIsFree = false;
+        i = usernames.length;
+      }
     }
+
+    if (usernameIsFree) return Promise.resolve();
+    else return Promise.reject({ code: 400, msg: "username already taken" });
   });
 };
 
