@@ -4,9 +4,8 @@
   },
   "api/users": {
     "GET /:username": {
-      "description": "returns all columns for the specified user",
+      "description": "returns all columns for the specified user, example response would be from :Dave",
       "example response": {
-        "user_id": 2,
         "username": "Dave",
         "avatar_url": "",
         "first_name": "Dave",
@@ -57,7 +56,7 @@
       }
     },
     "PATCH /:username": {
-      "description": "updates a user object with any included keys. Any key can be updated besides the username, user_id and dob.",
+      "description": "updates a user object with any included keys. Any key can be updated besides the username, user_id and dob, example response would be from :Geoff",
       "example request": {
         "street_address": "7 Hill Rise",
         "city": "Heathfield",
@@ -83,7 +82,7 @@
     }
   },
   "GET api/matches/:username": {
-    "description": "Returns a list of users where you share an area within each other's distance_radius",
+    "description": "Returns a list of users where you share an area within each other's distance_radius, example response would be from :Geoff",
     "example response": {
       "matches": [
         {
@@ -92,5 +91,12 @@
         }
       ]
     }
+  },
+  "GET api/sessions/:username": {
+    "description": "returns an array of sessions that the specified user is part of, example response would be from :Geoff",
+    "example response": [
+      { "session_id": 1, "user_a_name": "Geoff", "user_b_name": "Dave" },
+      { "session_id": 1, "user_a_name": "Jennifer", "user_b_name": "Geoff" }
+    ]
   }
 }

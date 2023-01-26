@@ -10,7 +10,7 @@ beforeEach(() => seed(testData));
 
 afterAll(() => db.end());
 
-describe("GET /api", () => {
+describe.only("GET /api", () => {
   it("responds with the contents of endpoints.json", () => {
     const appPromise = request(app).get("/api").expect(200);
     const filePromise = fs.readFile(__dirname + "/../endpoints.json", "utf8");
@@ -20,6 +20,15 @@ describe("GET /api", () => {
         expect(endpoints).toEqual(file);
       }
     );
+  });
+
+  it("responds with an object", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body: { endpoints } }) => {
+        expect(typeof endpoints).toBe("object");
+      });
   });
 });
 
