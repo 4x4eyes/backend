@@ -6,6 +6,7 @@ const {
   patchSingleUser,
   getMatches,
   getSessionsByUsername,
+  postSession,
   getMessagesBySessionId,
 } = require("./controllers/app.controllers");
 const {
@@ -27,6 +28,7 @@ app.patch("/api/users/:username", patchSingleUser);
 app.get("/api/matches/:username", getMatches);
 
 app.get("/api/sessions/:username", getSessionsByUsername);
+app.post("/api/sessions", postSession)
 
 app.get("/api/messages/:session_id", getMessagesBySessionId);
 

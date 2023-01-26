@@ -43,7 +43,7 @@ describe("handles 404", () => {
   });
 });
 
-describe("GET single user", () => {
+describe("GET /api/users/:username", () => {
   it("responds status 200 and a single user object", () => {
     return request(app)
       .get("/api/users/Dave")
@@ -289,7 +289,7 @@ describe("POST /api/users", () => {
       });
   });
 });
-describe("PATCH users/:username", () => {
+describe("PATCH /api/users/:username", () => {
   it("allows a user to change their avatar URL", () => {
     const avatarUpdate = {
       avatar_url:
@@ -429,7 +429,7 @@ describe("PATCH users/:username", () => {
   });
 });
 
-describe.skip("GET match/:username", () => {
+describe.skip("GET /api/match/:username", () => {
   it("responds with a list of users", () => {
     return request(app)
       .get("/api/matches/Dave")
@@ -491,7 +491,7 @@ describe.skip("GET match/:username", () => {
   });
 });
 
-describe("GET /sessions/:username", () => {
+describe("GET /api/sessions/:username", () => {
   it("returns the users sessions when passed a valid username", () => {
     return request(app)
       .get("/api/sessions/Dave")
@@ -525,8 +525,61 @@ describe("GET /sessions/:username", () => {
       });
   });
 });
+describe("POST /api/sessions", () => {
+  it("returns the new session object", () => {
+    return request(app)
+      .post("/api/sessions")
+      .send({
+        user_a_name: "Dave",
+        user_b_name: "Jennifer",
+      })
+      .expect(201)
+      .then(({ body: { session } }) => {
+        expect(session).toEqual({
+          session_id: 3,
+          user_a_name: "Dave",
+          user_b_name: "Jennifer",
+        });
+      });
+  });
+  it("returns a 400 if a session already exists", () => {
+    return request(app)
+      .post("/api/sessions")
+      .send({
+        user_a_name: "Geoff",
+        user_b_name: "Dave",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("session already exists");
+      });
+  });
+  it("returns a 400 if the users do not exist", () => {
+    return request(app)
+      .post("/api/sessions")
+      .send({
+        user_a_name: "bjorkl",
+        user_b_name: "J3nn1f3r",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+  it("returns a 400 if either key is undefined", () => {
+    return request(app)
+      .post("/api/sessions")
+      .send({
+        user_b_name: "Dave",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+});
 
-describe("GET /messages/:session_id", () => {
+describe("GET /api/messages/:session_id", () => {
   it("responds with a list of all messages in the session", () => {
     return request(app)
       .get("/api/messages/1")

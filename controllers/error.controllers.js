@@ -7,7 +7,7 @@ exports.handle500Error = (error, request, response, next) => {
 };
 
 exports.handleSqlError = (error, request, response, next) => {
-  const errorCodes400 = ["22P02", "23502", "42601"];
+  const errorCodes400 = ["22P02", "23502", "23503", "42601"];
   if (errorCodes400.includes(error.code)) {
     response.status(400).send({ msg: "bad request" });
   } else {

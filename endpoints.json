@@ -92,12 +92,26 @@
       ]
     }
   },
-  "GET api/sessions/:username": {
-    "description": "returns an array of sessions that the specified user is part of, example response would be from :Geoff",
-    "example response": [
-      { "session_id": 1, "user_a_name": "Geoff", "user_b_name": "Dave" },
-      { "session_id": 1, "user_a_name": "Jennifer", "user_b_name": "Geoff" }
-    ]
+  "api/sessions": {
+    "GET /:username": {
+      "description": "returns an array of sessions that the specified user is part of, example response would be from :Geoff",
+      "example response": [
+        { "session_id": 1, "user_a_name": "Geoff", "user_b_name": "Dave" },
+        { "session_id": 1, "user_a_name": "Jennifer", "user_b_name": "Geoff" }
+      ]
+    },
+    "POST /": {
+      "description": "posts a new session to the database between two specified users, does not allow new sessions between users if the session already exists",
+      "example request": {
+        "user_a_name": "Dave",
+        "user_b_name": "Jennifer"
+      },
+      "example response": {
+        "session_id": 3,
+        "user_a_name": "Dave",
+        "user_b_name": "Jennifer"
+      }
+    }
   },
   "GET api/messages/:session_id": {
     "description": "returns all messages from a session in chronological order so that old messages have lower indices",
