@@ -526,7 +526,7 @@ describe("GET /sessions/:username", () => {
   });
 });
 
-describe.only("GET /messages/:session_id", () => {
+describe("GET /messages/:session_id", () => {
   it("responds with a list of all messages in the session", () => {
     return request(app)
       .get("/api/messages/1")
