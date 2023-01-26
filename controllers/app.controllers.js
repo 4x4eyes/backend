@@ -1,5 +1,5 @@
 const fs = require("fs/promises");
-const { gMapKey } = require("../utils/key.js");
+const { gMapKey } = require("../key.js");
 const {
   insertUser,
   checkUsernameExists,

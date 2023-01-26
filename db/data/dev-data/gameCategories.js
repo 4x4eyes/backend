@@ -40,6 +40,7 @@ module.exports = [
   },
   {
     slug: "co-op",
-    description: "Games where players need to work together to win against the game",
+    description:
+      "Games where players need to work together to win against the game",
   },
 ];
