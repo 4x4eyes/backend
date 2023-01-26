@@ -144,7 +144,7 @@
     "description": "posts a message to a session that the user is in",
     "example request": {
       "author_name": "Geoff",
-      "message_body": "Sorry I was ignoring you",
+      "message_body": "Sorry I was ignoring you"
     },
     "example response": {
       "session_id": 2,
