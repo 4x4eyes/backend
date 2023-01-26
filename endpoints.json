@@ -96,8 +96,16 @@
     "GET /:username": {
       "description": "returns an array of sessions that the specified user is part of, example response would be from :Geoff",
       "example response": [
-        { "session_id": 1, "user_a_name": "Geoff", "user_b_name": "Dave" },
-        { "session_id": 1, "user_a_name": "Jennifer", "user_b_name": "Geoff" }
+        {
+          "session_id": 1,
+          "user_a_name": "Geoff",
+          "user_b_name": "Dave"
+        },
+        {
+          "session_id": 1,
+          "user_a_name": "Jennifer",
+          "user_b_name": "Geoff"
+        }
       ]
     },
     "POST /": {
@@ -131,5 +139,18 @@
         "created_at": "2023-01-23T16:28:15.000Z"
       }
     ]
+  },
+  "POST api/messages/:session_id": {
+    "description": "posts a message to a session that the user is in",
+    "example request": {
+      "author_name": "Geoff",
+      "message_body": "Sorry I was ignoring you",
+    },
+    "example response": {
+      "session_id": 2,
+      "author_name": "Geoff",
+      "message_body": "Sorry I was ignoring you",
+      "created_at": "2023-01-23 16:28:15"
+    }
   }
 }
