@@ -131,6 +131,17 @@ exports.selectSessionsByUsername = (username) => {
       return rows;
     });
 };
+exports.insertSession = (user_a_name, user_b_name) => {
+  return db
+    .query(
+      `INSERT INTO sessions
+    (user_a_name, user_b_name)
+    VALUES ($1, $2)
+    RETURNING *;`,
+      [user_a_name, user_b_name]
+    )
+    .then(({ rows }) => rows[0]);
+};
 
 exports.selectMessagesBySessionId = (session_id) => {
   return db
@@ -144,7 +155,7 @@ exports.selectMessagesBySessionId = (session_id) => {
     });
 };
 
-exports.checkSessionExists = (session_id) => {
+exports.checkSessionIdExists = (session_id) => {
   return db
     .query(
       `SELECT * FROM sessions 
@@ -154,4 +165,12 @@ exports.checkSessionExists = (session_id) => {
     .then(({ rows }) => {
       return rows.length !== 0;
     });
+};
+
+exports.checkSessionWithUsersExists = (user_a_name, user_b_name) => {
+  return db.query(
+    `SELECT * FROM sessions 
+  WHERE (user_a_name = $1 AND user_b_name = $2) OR (user_a_name = $2 AND user_b_name = $1)`,
+    [user_a_name, user_b_name]
+  ).then(({ rows }) => rows.length > 0);
 };

@@ -9,12 +9,15 @@ const {
   updateSingleUser,
   selectUsers,
   selectSessionsByUsername,
+  insertSession,
+  checkSessionIdExists,
+  checkSessionWithUsersExists,
   selectMessagesBySessionId,
-  checkSessionExists,
 } = require("../models/app.models");
 const { checkPositive, makeAddressString } = require("../utils/utils");
 
 const userNotFound = { code: 404, msg: "user not found" };
+const sessionExistsError = { code: 400, msg: "session already exists" };
 const sessionNotFound = { code: 404, msg: "session not found" };
 
 exports.getEndpoints = (request, response, next) => {
@@ -140,10 +143,26 @@ exports.getSessionsByUsername = (request, response, next) => {
       next(error);
     });
 };
+exports.postSession = (request, response, next) => {
+  const user_a_name = request.body.user_a_name;
+  const user_b_name = request.body.user_b_name;
+  checkSessionWithUsersExists(user_a_name, user_b_name)
+    .then((sessionExists) =>
+      sessionExists
+        ? next(sessionExistsError)
+        : insertSession(user_a_name, user_b_name)
+    )
+    .then((session) => {
+      response.status(201).send({ session });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
 
 exports.getMessagesBySessionId = (request, response, next) => {
   const session_id = request.params.session_id;
-  checkSessionExists(session_id)
+  checkSessionIdExists(session_id)
     .then((sessionExists) =>
       sessionExists
         ? selectMessagesBySessionId(session_id)
