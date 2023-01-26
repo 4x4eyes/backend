@@ -8,6 +8,7 @@ const {
   getSessionsByUsername,
   postSession,
   getMessagesBySessionId,
+  postMessage,
 } = require("./controllers/app.controllers");
 const {
   handle404Paths,
@@ -33,6 +34,7 @@ app.get("/api/sessions/:username", getSessionsByUsername);
 app.post("/api/sessions", postSession);
 
 app.get("/api/messages/:session_id", getMessagesBySessionId);
+app.post("/api/messages/:session_id", postMessage);
 
 app.get("*", handle404Paths);
 
