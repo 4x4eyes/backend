@@ -5,6 +5,7 @@ const app = require("../app");
 const request = require("supertest");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+const { time } = require("console");
 
 beforeEach(() => seed(testData));
 
@@ -613,6 +614,72 @@ describe("GET /api/messages/:session_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("bad request");
+      });
+  });
+});
+
+describe.only("POST /api/messages/:session_id", () => {
+  it("returns 201 and the posted message", () => {
+    const newMessage = {
+      author_name: "Geoff",
+      message_body: "Sorry I was ignoring you",
+    };
+
+    return request(app)
+      .post("/api/messages/2")
+      .send(newMessage)
+      .expect(201)
+      .then(({ body: { message } }) => {
+        expect(message).toEqual(
+          expect.objectContaining({
+            session_id: 2,
+            author_name: "Geoff",
+            message_body: "Sorry I was ignoring you",
+            created_at: expect.any(String),
+          })
+        );
+      });
+  });
+
+  it("returns 400 when a user posts a message to a session they are not contained in", () => {
+    const newMessage = {
+      author_name: "Dave",
+      message_body: "Hello Geoff?",
+    };
+
+    return request(app)
+      .post("/api/messages/1")
+      .send(newMessage)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+
+  it("responds 400 when a user posts an empty message_body", () => {
+    const newMessage = {
+      author_name: "Geoff",
+      message_body: "",
+    };
+
+    return request(app)
+      .post("/api/messages/1")
+      .send(newMessage)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+
+  it("responds 404 when a user posts to a non-existant session", () => {
+    const newMessage = { author_name: "Dave", message_body: "Hello Geoff?" };
+
+    return request(app)
+      .post("/api/messages/5")
+      .send(newMessage)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("session not found");
       });
   });
 });

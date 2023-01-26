@@ -168,9 +168,31 @@ exports.checkSessionIdExists = (session_id) => {
 };
 
 exports.checkSessionWithUsersExists = (user_a_name, user_b_name) => {
-  return db.query(
-    `SELECT * FROM sessions 
+  return db
+    .query(
+      `SELECT * FROM sessions 
   WHERE (user_a_name = $1 AND user_b_name = $2) OR (user_a_name = $2 AND user_b_name = $1)`,
-    [user_a_name, user_b_name]
-  ).then(({ rows }) => rows.length > 0);
+      [user_a_name, user_b_name]
+    )
+    .then(({ rows }) => rows.length > 0);
+};
+
+exports.checkUserInSession = (session_id, author_name) => {
+  return db
+    .query(
+      `SELECT * FROM sessions 
+      WHERE (user_a_name = $1 OR user_b_name = $1) AND session_id = $2;`,
+      [author_name, session_id]
+    )
+    .then(({ rows }) => rows.length > 0);
+};
+
+exports.insertMessage = (session_id, { author_name, message_body }) => {
+  return db
+    .query(
+      `INSERT INTO messages (session_id, author_name, message_body) 
+    VALUES ($1, $2, $3) RETURNING *;`,
+      [session_id, author_name, message_body]
+    )
+    .then(({ rows }) => rows[0]);
 };

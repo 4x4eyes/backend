@@ -13,12 +13,15 @@ const {
   checkSessionIdExists,
   checkSessionWithUsersExists,
   selectMessagesBySessionId,
+  checkUserInSession,
+  insertMessage,
 } = require("../models/app.models");
 const { checkPositive, makeAddressString } = require("../utils/utils");
 
 const userNotFound = { code: 404, msg: "user not found" };
 const sessionExistsError = { code: 400, msg: "session already exists" };
 const sessionNotFound = { code: 404, msg: "session not found" };
+const badRequest = { code: 400, msg: "bad request" };
 
 exports.getEndpoints = (request, response, next) => {
   fs.readFile(__dirname + "/../endpoints.json", "utf8").then((endpoints) =>
@@ -170,6 +173,28 @@ exports.getMessagesBySessionId = (request, response, next) => {
     )
     .then((messages) => {
       response.status(200).send({ messages });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.postMessage = (request, response, next) => {
+  const session_id = request.params.session_id;
+
+  if (!request.body.message_body) next(badRequest);
+
+  checkSessionIdExists(session_id)
+    .then((sessionExists) =>
+      sessionExists
+        ? checkUserInSession(session_id, request.body.author_name)
+        : next(sessionNotFound)
+    )
+    .then((isInSession) =>
+      isInSession ? insertMessage(session_id, request.body) : next(badRequest)
+    )
+    .then((message) => {
+      response.status(201).send({ message });
     })
     .catch((error) => {
       next(error);
