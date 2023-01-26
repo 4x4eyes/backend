@@ -15,8 +15,10 @@ const {
   handleSqlError,
   handleCustomError,
 } = require("./controllers/error.controllers");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get("/api", getEndpoints);
@@ -28,7 +30,7 @@ app.patch("/api/users/:username", patchSingleUser);
 app.get("/api/matches/:username", getMatches);
 
 app.get("/api/sessions/:username", getSessionsByUsername);
-app.post("/api/sessions", postSession)
+app.post("/api/sessions", postSession);
 
 app.get("/api/messages/:session_id", getMessagesBySessionId);
 
