@@ -13,8 +13,7 @@ const seed = async (data) => {
   await db.query("DROP TABLE IF EXISTS users;");
 
   const usersTablePromise = db.query(`CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR NOT NULL,
+    username VARCHAR NOT NULL PRIMARY KEY,
     avatar_url VARCHAR,
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
@@ -39,15 +38,15 @@ const seed = async (data) => {
 
   const userGamesTablePromise = db.query(`CREATE TABLE user_games (
     user_game_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES users(user_id),
+    username VARCHAR NOT NULL REFERENCES users(username),
     game_name VARCHAR NOT NULL,
     category_id INT NOT NULL REFERENCES game_categories(category_id)
     );`);
 
   const sessionsTablePromise = db.query(`CREATE TABLE sessions (
     session_id SERIAL PRIMARY KEY,
-    user_a_id INT NOT NULL REFERENCES users(user_id),
-    user_b_id INT NOT NULL REFERENCES users(user_id)
+    user_a_name VARCHAR NOT NULL REFERENCES users(username),
+    user_b_name VARCHAR NOT NULL REFERENCES users(username)
     );`);
 
   await Promise.all([userGamesTablePromise, sessionsTablePromise]);
@@ -55,7 +54,7 @@ const seed = async (data) => {
   await db.query(`CREATE TABLE messages (
     message_id SERIAL PRIMARY KEY,
     session_id INT NOT NULL REFERENCES sessions(session_id),
-    author_id INT NOT NULL,
+    author_name VARCHAR NOT NULL REFERENCES users(username),
     message_body VARCHAR(500) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
     );`);
@@ -115,11 +114,11 @@ const seed = async (data) => {
   const insertSessionString = format(
     `
   INSERT INTO sessions
-  (user_a_id, user_b_id)
+  (user_a_name, user_b_name)
   VALUES %L
   RETURNING *;
   `,
-    sessions.map(({ user_a_id, user_b_id }) => [user_a_id, user_b_id])
+    sessions.map(({ user_a_name, user_b_name }) => [user_a_name, user_b_name])
   );
   const sessionsPromise = db
     .query(insertSessionString)
@@ -128,11 +127,11 @@ const seed = async (data) => {
 
   const insertUserGameString = format(
     ` INSERT INTO user_games (
-      user_id, game_name, category_id
+      username, game_name, category_id
     ) VALUES %L RETURNING *;
     `,
-    userGames.map(({ user_id, game_name, category_id }) => [
-      user_id,
+    userGames.map(({ username, game_name, category_id }) => [
+      username,
       game_name,
       category_id,
     ])
@@ -147,13 +146,13 @@ const seed = async (data) => {
   const insertMessagesString = format(
     `
     INSERT INTO messages
-    (session_id, author_id, message_body, created_at)
+    (session_id, author_name, message_body, created_at)
     VALUES %L
     RETURNING *;
     `,
-    messages.map(({ session_id, author_id, message_body, created_at }) => [
+    messages.map(({ session_id, author_name, message_body, created_at }) => [
       session_id,
-      author_id,
+      author_name,
       message_body,
       created_at,
     ])

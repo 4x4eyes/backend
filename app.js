@@ -5,6 +5,7 @@ const {
   postUser,
   patchSingleUser,
   getMatches,
+  getSessionsByUsername,
 } = require("./controllers/app.controllers");
 const {
   handle404Paths,
@@ -23,6 +24,8 @@ app.post("/api/users", postUser);
 app.patch("/api/users/:username", patchSingleUser);
 
 app.get("/api/matches/:username", getMatches);
+
+app.get("/sessions/:username", getSessionsByUsername);
 
 app.get("*", handle404Paths);
 
