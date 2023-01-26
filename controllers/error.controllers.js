@@ -16,6 +16,7 @@ exports.handleSqlError = (error, request, response, next) => {
 };
 
 exports.handleCustomError = (error, request, response, next) => {
+  console.log(error);
   if (error.code && error.msg) {
     response.status(error.code).send({ msg: error.msg });
   } else {
