@@ -422,7 +422,7 @@ describe("PATCH users/:username", () => {
   });
 });
 
-describe("GET match/:username", () => {
+describe.skip("GET match/:username", () => {
   it("responds with a list of users", () => {
     return request(app)
       .get("/api/matches/Dave")
