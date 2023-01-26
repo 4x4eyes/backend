@@ -6,6 +6,7 @@ const {
   selectSingleUser,
   updateSingleUser,
   selectUsers,
+  selectSessionsByUsername,
 } = require("../models/app.models");
 const { checkPositive, makeAddressString } = require("../utils/utils");
 
@@ -117,6 +118,19 @@ exports.getMatches = (request, response, next) => {
 
       response.status(200).send({ matches });
     })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.getSessionsByUsername = (request, response, next) => {
+  const username = request.params.username;
+
+  checkUsernameExists(username)
+    .then((userExists) =>
+      userExists ? selectSessionsByUsername(username) : next(userNotFound)
+    )
+    .then((sessions) => response.status(200).send({ sessions }))
     .catch((error) => {
       next(error);
     });

@@ -119,3 +119,15 @@ exports.selectUsers = () => {
     )
     .then(({ rows }) => rows);
 };
+
+exports.selectSessionsByUsername = (username) => {
+  return db
+    .query(
+      `SELECT * FROM sessions 
+    WHERE user_a_name = $1 OR user_b_name = $1`,
+      [username]
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};

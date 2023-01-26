@@ -42,7 +42,6 @@ describe("GET single user", () => {
       .then(({ body: { user } }) => {
         expect(user).toEqual(
           expect.objectContaining({
-            user_id: 2,
             username: "Dave",
             avatar_url: "",
             first_name: "Dave",
@@ -108,7 +107,6 @@ describe("POST /api/users", () => {
       .then(({ body: { newUser } }) => {
         expect(newUser).toEqual(
           expect.objectContaining({
-            user_id: 4,
             username: "Nathan",
             avatar_url: "",
             first_name: "Nathan",
@@ -480,6 +478,41 @@ describe.skip("GET match/:username", () => {
       .then(({ body: { matches } }) => {
         expect(matches).toBeInstanceOf(Array);
         expect(matches.length).toBe(0);
+      });
+  });
+});
+
+describe("GET /sessions/:username", () => {
+  it("returns the users sessions when passed a valid username", () => {
+    return request(app)
+      .get("/sessions/Dave")
+      .expect(200)
+      .then(({ body: { sessions } }) => {
+        expect(sessions).toBeInstanceOf(Array);
+        expect(sessions.length).toBe(1);
+      });
+  });
+
+  it("returns the users sessions when the valid user has 2 sessions", () => {
+    return request(app)
+      .get("/sessions/Geoff")
+      .expect(200)
+      .then(({ body: { sessions } }) => {
+        expect(sessions.length).toBe(2);
+        sessions.forEach((session) => {
+          session_id: expect.any(Number);
+          user_a_name: expect.any(String);
+          user_b_name: expect.any(String);
+        });
+      });
+  });
+
+  it("returns a 404 when passed a bad username", () => {
+    return request(app)
+      .get("/sessions/Potato")
+      .expect(404)
+      .expect(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
       });
   });
 });
