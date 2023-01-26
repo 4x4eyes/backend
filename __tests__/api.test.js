@@ -10,7 +10,7 @@ beforeEach(() => seed(testData));
 
 afterAll(() => db.end());
 
-describe.only("GET /api", () => {
+describe("GET /api", () => {
   it("responds with the contents of endpoints.json", () => {
     const appPromise = request(app).get("/api").expect(200);
     const filePromise = fs.readFile(__dirname + "/../endpoints.json", "utf8");
@@ -494,7 +494,7 @@ describe.skip("GET match/:username", () => {
 describe("GET /sessions/:username", () => {
   it("returns the users sessions when passed a valid username", () => {
     return request(app)
-      .get("/sessions/Dave")
+      .get("/api/sessions/Dave")
       .expect(200)
       .then(({ body: { sessions } }) => {
         expect(sessions).toBeInstanceOf(Array);
@@ -504,7 +504,7 @@ describe("GET /sessions/:username", () => {
 
   it("returns the users sessions when the valid user has 2 sessions", () => {
     return request(app)
-      .get("/sessions/Geoff")
+      .get("/api/sessions/Geoff")
       .expect(200)
       .then(({ body: { sessions } }) => {
         expect(sessions.length).toBe(2);
@@ -518,10 +518,48 @@ describe("GET /sessions/:username", () => {
 
   it("returns a 404 when passed a bad username", () => {
     return request(app)
-      .get("/sessions/Potato")
+      .get("/api/sessions/Potato")
       .expect(404)
       .expect(({ body: { msg } }) => {
         expect(msg).toBe("user not found");
+      });
+  });
+});
+
+describe.only("GET /messages/:session_id", () => {
+  it("responds with a list of all messages in the session", () => {
+    return request(app)
+      .get("/api/messages/1")
+      .expect(200)
+      .then(({ body: { messages } }) => {
+        expect(messages).toBeInstanceOf(Array);
+        expect(messages.length).toBe(2);
+      });
+  });
+  it("responds with messages in chronological order", () => {
+    return request(app)
+      .get("/api/messages/1")
+      .expect(200)
+      .then(({ body: { messages } }) => {
+        expect(messages).toBeSortedBy("message_id", {
+          descending: false,
+        });
+      });
+  });
+  it("responds with a 404 if the session key does not exist", () => {
+    return request(app)
+      .get("/api/messages/1000000")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("session not found");
+      });
+  });
+  it("responds with a 400 if the session key is invalid", () => {
+    return request(app)
+      .get("/api/messages/chicken_nuggets")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
       });
   });
 });

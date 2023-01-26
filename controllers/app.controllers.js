@@ -1,4 +1,6 @@
+const { response } = require("express");
 const fs = require("fs/promises");
+const messages = require("../db/data/test-data/messages.js");
 const { gMapKey } = require("../key.js");
 const {
   insertUser,
@@ -7,10 +9,13 @@ const {
   updateSingleUser,
   selectUsers,
   selectSessionsByUsername,
+  selectMessagesBySessionId,
+  checkSessionExists,
 } = require("../models/app.models");
 const { checkPositive, makeAddressString } = require("../utils/utils");
 
 const userNotFound = { code: 404, msg: "user not found" };
+const sessionNotFound = { code: 404, msg: "session not found" };
 
 exports.getEndpoints = (request, response, next) => {
   fs.readFile(__dirname + "/../endpoints.json", "utf8").then((endpoints) =>
@@ -131,6 +136,22 @@ exports.getSessionsByUsername = (request, response, next) => {
       userExists ? selectSessionsByUsername(username) : next(userNotFound)
     )
     .then((sessions) => response.status(200).send({ sessions }))
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.getMessagesBySessionId = (request, response, next) => {
+  const session_id = request.params.session_id;
+  checkSessionExists(session_id)
+    .then((sessionExists) =>
+      sessionExists
+        ? selectMessagesBySessionId(session_id)
+        : next(sessionNotFound)
+    )
+    .then((messages) => {
+      response.status(200).send({ messages });
+    })
     .catch((error) => {
       next(error);
     });

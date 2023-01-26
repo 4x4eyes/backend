@@ -131,3 +131,27 @@ exports.selectSessionsByUsername = (username) => {
       return rows;
     });
 };
+
+exports.selectMessagesBySessionId = (session_id) => {
+  return db
+    .query(
+      `SELECT * FROM messages 
+  WHERE session_id = $1`,
+      [session_id]
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
+
+exports.checkSessionExists = (session_id) => {
+  return db
+    .query(
+      `SELECT * FROM sessions 
+  WHERE session_id = $1`,
+      [session_id]
+    )
+    .then(({ rows }) => {
+      return rows.length !== 0;
+    });
+};

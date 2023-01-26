@@ -6,6 +6,7 @@ const {
   patchSingleUser,
   getMatches,
   getSessionsByUsername,
+  getMessagesBySessionId,
 } = require("./controllers/app.controllers");
 const {
   handle404Paths,
@@ -25,7 +26,9 @@ app.patch("/api/users/:username", patchSingleUser);
 
 app.get("/api/matches/:username", getMatches);
 
-app.get("/sessions/:username", getSessionsByUsername);
+app.get("/api/sessions/:username", getSessionsByUsername);
+
+app.get("/api/messages/:session_id", getMessagesBySessionId);
 
 app.get("*", handle404Paths);
 
