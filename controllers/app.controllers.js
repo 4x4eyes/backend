@@ -125,20 +125,15 @@ exports.getMatches = (request, response, next) => {
         return {
           username,
           distance,
-          games,
+          games: games[0] === null ? [] : games.map((game) => {
+            let properties = String(game).split("*@");
+            return {
+              name: properties[0],
+              category_slug: properties[1],
+              category_id: properties[2],
+            };
+          }),
         };
-      });
-
-      matches.forEach((match) => {
-        match.games = match.games.filter((game) => game);
-        match.games = match.games.map((game) => {
-          let properties = String(game).split("*@");
-          return {
-            name: properties[0],
-            category_slug: properties[1],
-            category_id: properties[2],
-          };
-        });
       });
 
       response.status(200).send({ matches });
