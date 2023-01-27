@@ -118,24 +118,27 @@ exports.getMatches = (request, response, next) => {
           otherUser.distance_radius + searchUser.distance_radius
       );
 
-      if (usersInRange.length === 0) return response.status(200).send({ matches: [] });
+      if (usersInRange.length === 0)
+        return response.status(200).send({ matches: [] });
 
       const matches = usersInRange.map(({ username, distance, games }) => {
-        console.log(games)
         return {
           username,
           distance,
-          games: !!games
-            ? games.map((game) => {
-                fields = String(game).split("*@");
-                return {
-                  name: fields[0],
-                  category_slug: fields[1],
-                  category_id: fields[2],
-                };
-              })
-            : [],
+          games,
         };
+      });
+
+      matches.forEach((match) => {
+        match.games = match.games.filter((game) => game);
+        match.games = match.games.map((game) => {
+          let properties = String(game).split("*@");
+          return {
+            name: properties[0],
+            category_slug: properties[1],
+            category_id: properties[2],
+          };
+        });
       });
 
       response.status(200).send({ matches });
