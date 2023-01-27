@@ -15,6 +15,7 @@ const {
   checkUserInSession,
   insertMessage,
   selectGamesByUsername,
+  insertGame,
 } = require("../models/app.models");
 const { checkPositive, makeAddressString } = require("../utils/utils");
 
@@ -222,6 +223,20 @@ exports.getGamesByUsername = (request, response, next) => {
     })
     .then((games) => {
       response.status(200).send({ games });
+    })
+    .catch((error) => next(error));
+};
+
+exports.postGame = (request, response, next) => {
+  const username = request.params.username;
+
+  checkUsernameExists(username)
+    .then((userExists) => {
+      if (userExists) return insertGame(username, request.body);
+      throw userNotFound;
+    })
+    .then((game) => {
+      response.status(201).send({ game });
     })
     .catch((error) => next(error));
 };

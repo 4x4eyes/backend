@@ -10,6 +10,7 @@ const {
   getMessagesBySessionId,
   postMessage,
   getGamesByUsername,
+  postGame,
 } = require("./controllers/app.controllers");
 const {
   handle404Paths,
@@ -29,6 +30,7 @@ app.get("/api/users/:username", getSingleUser);
 app.post("/api/users", postUser);
 app.patch("/api/users/:username", patchSingleUser);
 app.get("/api/users/:username/games", getGamesByUsername);
+app.post("/api/users/:username/games", postGame);
 
 app.get("/api/matches/:username", getMatches);
 
