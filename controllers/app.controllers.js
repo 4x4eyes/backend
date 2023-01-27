@@ -1,6 +1,5 @@
-const { response } = require("express");
 const fs = require("fs/promises");
-const messages = require("../db/data/test-data/messages.js");
+const fetch = require("node-fetch");
 const { gMapKey } = require("../key.js");
 const {
   insertUser,
@@ -128,7 +127,11 @@ exports.getMatches = (request, response, next) => {
           distance,
           games: games.map((game) => {
             fields = game.split("*@");
-            return { name: fields[0], category_slug: fields[1], category_id: fields[2] };
+            return {
+              name: fields[0],
+              category_slug: fields[1],
+              category_id: fields[2],
+            };
           }),
         };
       });
