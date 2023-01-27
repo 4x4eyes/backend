@@ -20,5 +20,6 @@ exports.handleCustomError = (error, request, response, next) => {
 };
 
 exports.handle500Error = (error, request, response, next) => {
+  console.log("CRUMBS! A 500!", error);
   response.status(500).send({ msg: "internal server error" });
 };
