@@ -456,7 +456,7 @@ describe("PATCH /api/users/:username", () => {
   });
 });
 
-describe.skip("GET /api/match/:username", () => {
+describe.only("GET /api/match/:username", () => {
   it("responds with a list of users", () => {
     return request(app)
       .get("/api/matches/Dave")
