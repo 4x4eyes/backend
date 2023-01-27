@@ -121,12 +121,13 @@ exports.getMatches = (request, response, next) => {
       if (usersInRange.length === 0) return response.status(200).send({ matches: [] });
 
       const matches = usersInRange.map(({ username, distance, games }) => {
+        console.log(games)
         return {
           username,
           distance,
           games: !!games
             ? games.map((game) => {
-                fields = game.split("*@");
+                fields = String(game).split("*@");
                 return {
                   name: fields[0],
                   category_slug: fields[1],
