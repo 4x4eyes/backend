@@ -14,6 +14,7 @@ const {
   selectMessagesBySessionId,
   checkUserInSession,
   insertMessage,
+  selectGamesByUsername,
 } = require("../models/app.models");
 const { checkPositive, makeAddressString } = require("../utils/utils");
 
@@ -125,14 +126,17 @@ exports.getMatches = (request, response, next) => {
         return {
           username,
           distance,
-          games: games[0] === null ? [] : games.map((game) => {
-            let properties = String(game).split("*@");
-            return {
-              name: properties[0],
-              category_slug: properties[1],
-              category_id: properties[2],
-            };
-          }),
+          games:
+            games[0] === null
+              ? []
+              : games.map((game) => {
+                  let properties = String(game).split("*@");
+                  return {
+                    name: properties[0],
+                    category_slug: properties[1],
+                    category_id: properties[2],
+                  };
+                }),
         };
       });
 
@@ -207,4 +211,17 @@ exports.postMessage = (request, response, next) => {
     .catch((error) => {
       next(error);
     });
+};
+
+exports.getGamesByUsername = (request, response, next) => {
+  const username = request.params.username;
+  checkUsernameExists(username)
+    .then((userExists) => {
+      if (userExists) return selectGamesByUsername(username);
+      throw userNotFound;
+    })
+    .then((games) => {
+      response.status(200).send({ games });
+    })
+    .catch((error) => next(error));
 };

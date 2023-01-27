@@ -206,3 +206,15 @@ exports.insertMessage = (session_id, { author_name, message_body }) => {
     )
     .then(({ rows }) => rows[0]);
 };
+
+exports.selectGamesByUsername = (username) => {
+  return db
+    .query(
+      `SELECT game_name, user_games.category_id, category_slug 
+  FROM user_games JOIN game_categories 
+  USING (category_id) WHERE username = $1;`,
+      [username]
+    )
+    .then(({ rows }) => rows)
+    .catch((e) => console.log(e));
+};

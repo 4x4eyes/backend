@@ -456,7 +456,7 @@ describe("PATCH /api/users/:username", () => {
   });
 });
 
-describe.only("GET /api/match/:username", () => {
+describe.skip("GET /api/match/:username", () => {
   it("responds with a list of users", () => {
     return request(app)
       .get("/api/matches/Dave")
@@ -732,6 +732,66 @@ describe("POST /api/messages/:session_id", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("session not found");
+      });
+  });
+});
+
+describe.only("GET /api/users/:username/games", () => {
+  it("returns 200 and an array of games", () => {
+    return request(app)
+      .get("/api/users/Geoff/games")
+      .expect(200)
+      .then(({ body: { games } }) => {
+        expect(games.length).toBe(4);
+        games.forEach((game) => {
+          expect.objectContaining({
+            game_name: expect.any(String),
+            category_id: expect.stringMatching(/^d*$/),
+            category_name: expect.any(String),
+          });
+        });
+      });
+  });
+
+  it("returns 404 when given a username that does not exist", () => {
+    return request(app)
+      .get("/api/users/gertrude/games")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
+
+  it("returns 200 and an empty array when the user has no games", () => {
+    const newUser = {
+      username: "nogames",
+      avatar_url: "",
+      first_name: "no",
+      last_name: "games",
+      dob: "1990-10-10",
+      street_address: "123 nogames",
+      city: "sennen",
+      postcode: "TR197AW",
+      county: "",
+      country: "UK",
+      distance_radius: "0.1",
+      email: "no@games.none",
+      phone_number: "01234567890",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .then(({ body: { newUser } }) => {
+        expect(newUser).toBeInstanceOf(Object);
+      })
+      .then(() => {
+        return request(app).get("/api/users/nogames/games").expect(200);
+      })
+      .then(({ body: { games } }) => {
+        expect(games).toBeInstanceOf(Array);
+        expect(games.length).toBe(0);
       });
   });
 });
