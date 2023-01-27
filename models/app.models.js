@@ -215,6 +215,16 @@ exports.selectGamesByUsername = (username) => {
   USING (category_id) WHERE username = $1;`,
       [username]
     )
-    .then(({ rows }) => rows)
-    .catch((e) => console.log(e));
+    .then(({ rows }) => rows);
+};
+
+exports.insertGame = (username, { game_name, category_id }) => {
+  return db
+    .query(
+      `INSERT INTO user_games (username, game_name, category_id) 
+    VALUES ($1, $2, $3) 
+    RETURNING user_game_id, game_name, category_id;`,
+      [username, game_name, category_id]
+    )
+    .then(({ rows }) => rows[0]);
 };

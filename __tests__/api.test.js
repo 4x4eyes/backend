@@ -736,7 +736,7 @@ describe("POST /api/messages/:session_id", () => {
   });
 });
 
-describe.only("GET /api/users/:username/games", () => {
+describe("GET /api/users/:username/games", () => {
   it("returns 200 and an array of games", () => {
     return request(app)
       .get("/api/users/Geoff/games")
@@ -792,6 +792,69 @@ describe.only("GET /api/users/:username/games", () => {
       .then(({ body: { games } }) => {
         expect(games).toBeInstanceOf(Array);
         expect(games.length).toBe(0);
+      });
+  });
+});
+
+describe.only("POST /api/users/:username/games", () => {
+  it("returns 201 and a new game object", () => {
+    const newGame = {
+      game_name: "Zombiecide",
+      category_id: 9,
+    };
+
+    return request(app)
+      .post("/api/users/Jennifer/games")
+      .send(newGame)
+      .expect(201)
+      .then(({ body: { game } }) => {
+        expect(game).toEqual(
+          expect.objectContaining({
+            game_name: "Zombiecide",
+            category_id: 9,
+            user_game_id: 10,
+          })
+        );
+      });
+  });
+
+  it("returns 404 when passed a user not in the database", () => {
+    const newGame = {
+      game_name: "Zombiecide",
+      category_id: 9,
+    };
+
+    return request(app)
+      .post("/api/users/stephenfry/games")
+      .send(newGame)
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("user not found");
+      });
+  });
+
+  it("returns 400 when given a bad input object", () => {
+    const badGame = {
+      gamename: "Zombiecide",
+      category_id: 9,
+    };
+
+    return request(app)
+      .post("/api/users/Jennifer/games")
+      .send(badGame)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
+
+  it("returns 400 when given no input object", () => {
+    return request(app)
+      .post("/api/users/Jennifer/games")
+      .send()
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
       });
   });
 });
