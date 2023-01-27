@@ -3,6 +3,7 @@ exports.handle404Paths = (request, response, next) => {
 };
 
 exports.handle500Error = (error, request, response, next) => {
+  console.log(error)
   response.status(500).send({ msg: "internal server error" });
 };
 
