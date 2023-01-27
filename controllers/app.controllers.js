@@ -7,7 +7,7 @@ const {
   checkUsernameExists,
   selectSingleUser,
   updateSingleUser,
-  selectUsers,
+  selectUsersWithGames,
   selectSessionsByUsername,
   insertSession,
   checkSessionIdExists,
@@ -85,7 +85,9 @@ exports.getMatches = (request, response, next) => {
   let otherUsers;
 
   checkUsernameExists(username)
-    .then((userExists) => (userExists ? selectUsers() : next(userNotFound)))
+    .then((userExists) =>
+      userExists ? selectUsersWithGames() : next(userNotFound)
+    )
     .then((allUsers) => {
       searchUser = allUsers.find((user) => user.username === username);
       otherUsers = allUsers.filter((user) => user.username !== username);
@@ -120,10 +122,14 @@ exports.getMatches = (request, response, next) => {
           otherUser.distance_radius + searchUser.distance_radius
       );
 
-      const matches = usersInRange.map(({ username, distance }) => {
+      const matches = usersInRange.map(({ username, distance, games }) => {
         return {
           username,
           distance,
+          games: games.map((game) => {
+            fields = game.split("*@");
+            return { name: fields[0], category_slug: fields[1], category_id: fields[2] };
+          }),
         };
       });
 
@@ -178,7 +184,6 @@ exports.getMessagesBySessionId = (request, response, next) => {
       next(error);
     });
 };
-
 exports.postMessage = (request, response, next) => {
   const session_id = request.params.session_id;
 
