@@ -2,11 +2,6 @@ exports.handle404Paths = (request, response, next) => {
   response.status(404).send({ msg: "path not found" });
 };
 
-exports.handle500Error = (error, request, response, next) => {
-  console.log(error)
-  response.status(500).send({ msg: "internal server error" });
-};
-
 exports.handleSqlError = (error, request, response, next) => {
   const errorCodes400 = ["22P02", "23502", "23503", "42601"];
   if (errorCodes400.includes(error.code)) {
@@ -22,4 +17,8 @@ exports.handleCustomError = (error, request, response, next) => {
   } else {
     next(error);
   }
+};
+
+exports.handle500Error = (error, request, response, next) => {
+  response.status(500).send({ msg: "internal server error" });
 };

@@ -289,6 +289,32 @@ describe("POST /api/users", () => {
         expect(msg).toBe("bad request");
       });
   });
+
+  it("returns 400 when given a username that is a number", () => {
+    const numUser = {
+      username: "20",
+      avatar_url: "",
+      first_name: "Nathan",
+      last_name: "Rowan",
+      dob: "1998-05-23",
+      street_address: "38 Artillery Place",
+      city: "London",
+      postcode: "SE184EP",
+      county: "Greater London",
+      country: "UK",
+      distance_radius: 1000,
+      email: "Nathan@nathan.nathaniel",
+      phone_number: "75328075809",
+    };
+
+    return request(app)
+      .post("/api/users")
+      .send(numUser)
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("bad request");
+      });
+  });
 });
 describe("PATCH /api/users/:username", () => {
   it("allows a user to change their avatar URL", () => {
@@ -467,6 +493,15 @@ describe.skip("GET /api/match/:username", () => {
       });
   });
 
+  it("responds with an empty array if no other users are in that users catchment area", () => {
+    return request(app)
+      .get("/api/matches/Jennifer")
+      .expect(200)
+      .then(({ body: { matches } }) => {
+        expect(matches.length).toBe(0);
+      });
+  });
+
   it("responds with a 404 if the user does not exist", () => {
     return request(app)
       .get("/api/matches/wiggleWilmur")
@@ -635,7 +670,6 @@ describe("GET /api/messages/:session_id", () => {
       });
   });
 });
-
 describe("POST /api/messages/:session_id", () => {
   it("returns 201 and the posted message", () => {
     const newMessage = {
@@ -689,7 +723,7 @@ describe("POST /api/messages/:session_id", () => {
       });
   });
 
-  it("responds 404 when a user posts to a non-existant session", () => {
+  it("responds 404 when a user posts to a non-existent session", () => {
     const newMessage = { author_name: "Dave", message_body: "Hello Geoff?" };
 
     return request(app)

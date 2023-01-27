@@ -30,47 +30,43 @@ exports.getEndpoints = (request, response, next) => {
 
 exports.getSingleUser = (request, response, next) => {
   checkUsernameExists(request.params.username)
-    .then((userExists) =>
-      userExists
-        ? selectSingleUser(request.params.username)
-        : next(userNotFound)
-    )
+    .then((userExists) => {
+      if (userExists) return selectSingleUser(request.params.username);
+      throw userNotFound;
+    })
     .then((user) => response.status(200).send({ user }))
     .catch((error) => {
       next(error);
     });
 };
 exports.postUser = (request, response, next) => {
-  if (!request.body.username) {
-    let error = { code: 400, msg: "bad request" };
-    next(error);
-  }
+  if (
+    !request.body.username ||
+    !checkPositive(Number(request.body.distance_radius))
+  )
+    return next(badRequest);
 
-  if (!checkPositive(parseInt(request.body.distance_radius))) {
-    let error = { code: 400, msg: "bad request" };
-    next(error);
-  } else {
-    checkUsernameExists(request.body.username)
-      .then((userExists) =>
-        userExists
-          ? next({ code: 400, msg: "username already taken" })
-          : insertUser(request.body)
-      )
-      .then((res) => {
-        response.status(201).send({ newUser: res });
-      })
-      .catch((error) => {
-        next(error);
-      });
-  }
+  if (Number(request.body.username)) return next(badRequest);
+
+  checkUsernameExists(request.body.username)
+    .then((userExists) => {
+      if (userExists) throw { code: 400, msg: "username already taken" };
+      return insertUser(request.body);
+    })
+    .then((res) => {
+      response.status(201).send({ newUser: res });
+    })
+    .catch((error) => {
+      next(error);
+    });
 };
 exports.patchSingleUser = (request, response, next) => {
   checkUsernameExists(request.params.username)
-    .then((userExists) =>
-      userExists
-        ? updateSingleUser(request.params.username, request.body)
-        : next(userNotFound)
-    )
+    .then((userExists) => {
+      if (userExists)
+        return updateSingleUser(request.params.username, request.body);
+      throw userNotFound;
+    })
     .then((newUser) => response.status(202).send({ newUser }))
     .catch((error) => {
       next(error);
@@ -84,9 +80,10 @@ exports.getMatches = (request, response, next) => {
   let otherUsers;
 
   checkUsernameExists(username)
-    .then((userExists) =>
-      userExists ? selectUsersWithGames() : next(userNotFound)
-    )
+    .then((userExists) => {
+      if (userExists) return selectUsersWithGames();
+      throw userNotFound;
+    })
     .then((allUsers) => {
       searchUser = allUsers.find((user) => user.username === username);
       otherUsers = allUsers.filter((user) => user.username !== username);
@@ -121,18 +118,22 @@ exports.getMatches = (request, response, next) => {
           otherUser.distance_radius + searchUser.distance_radius
       );
 
+      if (usersInRange.length === 0) return response.status(200).send({ matches: [] });
+
       const matches = usersInRange.map(({ username, distance, games }) => {
         return {
           username,
           distance,
-          games: games.map((game) => {
-            fields = game.split("*@");
-            return {
-              name: fields[0],
-              category_slug: fields[1],
-              category_id: fields[2],
-            };
-          }),
+          games: !!games
+            ? games.map((game) => {
+                fields = game.split("*@");
+                return {
+                  name: fields[0],
+                  category_slug: fields[1],
+                  category_id: fields[2],
+                };
+              })
+            : [],
         };
       });
 
@@ -147,9 +148,10 @@ exports.getSessionsByUsername = (request, response, next) => {
   const username = request.params.username;
 
   checkUsernameExists(username)
-    .then((userExists) =>
-      userExists ? selectSessionsByUsername(username) : next(userNotFound)
-    )
+    .then((userExists) => {
+      if (userExists) return selectSessionsByUsername(username);
+      throw userNotFound;
+    })
     .then((sessions) => response.status(200).send({ sessions }))
     .catch((error) => {
       next(error);
@@ -159,11 +161,10 @@ exports.postSession = (request, response, next) => {
   const user_a_name = request.body.user_a_name;
   const user_b_name = request.body.user_b_name;
   checkSessionWithUsersExists(user_a_name, user_b_name)
-    .then((sessionExists) =>
-      sessionExists
-        ? next(sessionExistsError)
-        : insertSession(user_a_name, user_b_name)
-    )
+    .then((sessionExists) => {
+      if (sessionExists) throw sessionExistsError;
+      return insertSession(user_a_name, user_b_name);
+    })
     .then((session) => {
       response.status(201).send({ session });
     })
@@ -175,11 +176,10 @@ exports.postSession = (request, response, next) => {
 exports.getMessagesBySessionId = (request, response, next) => {
   const session_id = request.params.session_id;
   checkSessionIdExists(session_id)
-    .then((sessionExists) =>
-      sessionExists
-        ? selectMessagesBySessionId(session_id)
-        : next(sessionNotFound)
-    )
+    .then((sessionExists) => {
+      if (sessionExists) return selectMessagesBySessionId(session_id);
+      throw sessionNotFound;
+    })
     .then((messages) => {
       response.status(200).send({ messages });
     })
@@ -190,17 +190,18 @@ exports.getMessagesBySessionId = (request, response, next) => {
 exports.postMessage = (request, response, next) => {
   const session_id = request.params.session_id;
 
-  if (!request.body.message_body) next(badRequest);
+  if (!request.body.message_body) return next(badRequest);
 
   checkSessionIdExists(session_id)
-    .then((sessionExists) =>
-      sessionExists
-        ? checkUserInSession(session_id, request.body.author_name)
-        : next(sessionNotFound)
-    )
-    .then((isInSession) =>
-      isInSession ? insertMessage(session_id, request.body) : next(badRequest)
-    )
+    .then((sessionExists) => {
+      if (sessionExists)
+        return checkUserInSession(session_id, request.body.author_name);
+      throw sessionNotFound;
+    })
+    .then((isInSession) => {
+      if (isInSession) return insertMessage(session_id, request.body);
+      throw badRequest;
+    })
     .then((message) => {
       response.status(201).send({ message });
     })

@@ -50,6 +50,9 @@ exports.checkUsernameExists = (username) => {
   const getUsernamesString = `SELECT username FROM users;`;
 
   return db.query(getUsernamesString).then(({ rows: usernames }) => {
+    if (!username) return false;
+    if (Number(username)) return false;
+
     let usernameExists = false;
 
     for (i = 0; i < usernames.length; i++) {
@@ -58,7 +61,6 @@ exports.checkUsernameExists = (username) => {
         i = usernames.length;
       }
     }
-
     return usernameExists;
   });
 };
