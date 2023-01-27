@@ -102,19 +102,27 @@ exports.updateSingleUser = (username, updateBody) => {
   return db.query(updateString, inputValues).then(({ rows }) => rows[0]);
 };
 
-exports.selectUsers = () => {
+exports.selectUsersWithGames = () => {
   return db
     .query(
       `
     SELECT
-      username,
+      users.username,
       street_address,
       city,
       postcode,
       county,
       country,
-      distance_radius
+      distance_radius,
+      array_agg(
+        game_name || '*@' ||
+        category_slug || '*@' ||
+        user_games.category_id
+      ) AS games
     FROM users
+    LEFT JOIN user_games USING (username) 
+    LEFT JOIN game_categories USING (category_id) 
+    GROUP BY users.username;
     `
     )
     .then(({ rows }) => rows);

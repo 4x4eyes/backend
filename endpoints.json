@@ -82,12 +82,29 @@
     }
   },
   "GET api/matches/:username": {
-    "description": "Returns a list of users where you share an area within each other's distance_radius, example response would be from :Geoff",
+    "description": "Returns a list of users where you share an area within each other's distance_radius, each user contains the username, distance from parametric username user, and a list of games they enjoy, example response would be from :Geoff",
     "example response": {
       "matches": [
         {
           "username": "Dave",
-          "distance": "10.2 km"
+          "distance": "10.2 km",
+          "games": [
+            {
+              "game_name": "Pictionary",
+              "category_slug": "party",
+              "category_id": 8
+            },
+            {
+              "game_name": "Pokemon Cards",
+              "category_slug": "deck-building",
+              "category_id": 6
+            },
+            {
+              "game_name": "Battleships",
+              "category_slug": "strategy",
+              "category_id": 1
+            }
+          ]
         }
       ]
     }

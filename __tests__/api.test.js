@@ -449,6 +449,24 @@ describe.skip("GET /api/match/:username", () => {
       });
   });
 
+  it("responds with a list of desired games for each matched user", () => {
+    return request(app)
+      .get("/api/matches/Geoff")
+      .expect(200)
+      .then(({ body: { matches } }) => {
+        expect(matches[0].games.length).toBe(3);
+        matches[0].games.forEach((game) =>
+          expect(game).toEqual(
+            expect.objectContaining({
+              name: expect.any(String),
+              category_slug: expect.any(String),
+              category_id: expect.any(String),
+            })
+          )
+        );
+      });
+  });
+
   it("responds with a 404 if the user does not exist", () => {
     return request(app)
       .get("/api/matches/wiggleWilmur")
@@ -463,7 +481,7 @@ describe.skip("GET /api/match/:username", () => {
       username: "Nathan",
       avatar_url: "",
       first_name: "Nathan",
-      last_name: "Rowan",
+      last_name: "Nathan",
       dob: "1998-05-23",
       street_address: "38 Artillery Place",
       city: "London",
@@ -618,7 +636,7 @@ describe("GET /api/messages/:session_id", () => {
   });
 });
 
-describe.only("POST /api/messages/:session_id", () => {
+describe("POST /api/messages/:session_id", () => {
   it("returns 201 and the posted message", () => {
     const newMessage = {
       author_name: "Geoff",
