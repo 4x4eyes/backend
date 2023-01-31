@@ -7,7 +7,7 @@ const server = app.listen(PORT, () => console.log(`Listening on ${PORT}...`));
 const io = socket(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PATCH", "DELETE"],
   },
 });
 
