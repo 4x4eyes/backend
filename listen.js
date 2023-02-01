@@ -12,7 +12,10 @@ const io = socket(server, {
 });
 
 io.on("connection", (socket) => {
+  console.log(`connection on ${JSON.stringify(socket)}`);
+
   socket.on("join_session", (session) => {
+    console.log(`joining session: ${JSON.stringify(session)}`);
     socket.join(session);
   });
 
